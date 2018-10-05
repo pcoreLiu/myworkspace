@@ -2,6 +2,7 @@
   <dictionary name="pcore">
     <words>
       <w>perceptron</w>
+      <w>tensorboard</w>
     </words>
   </dictionary>
 </component>

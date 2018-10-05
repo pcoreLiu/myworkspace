@@ -8,7 +8,7 @@ def f(x):
     return sess.run(Weights)*x + sess.run(biases)
 
 
-x_data = np.random.rand(20).astype(np.float32)
+x_data = np.random.rand(200).astype(np.float32)
 y_data = x_data * 2.9 + 0.3
 
 Weights = tf.Variable(tf.random_uniform([1], -1.0, 1.0))
@@ -45,9 +45,7 @@ with tf.Session() as sess:
             plt.plot(x_data, f(x_data), 'r-')
 
             error = np.append(error, loss.eval())
-            index = np.array([0])
-            for i in range(1, len(error)):
-                index = np.append(index, i)
+            index = m = np.linspace(1, len(error), len(error), dtype=np.int)
 
             plt.subplot(212)
             plt.plot(index, error, 'b-')
