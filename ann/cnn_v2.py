@@ -25,8 +25,8 @@ def create_new_conv_layer(input_data, num_input_channels, num_filters, filter_sh
     conv_filt_shape = [filter_shape[0], filter_shape[1], num_input_channels, num_filters]
 
     # initialise weights and bias for the filter
-    weights = tf.Variable(tf.truncated_normal(conv_filt_shape, stddev=0.03), name=name+'_W')
-    bias = tf.Variable(tf.truncated_normal([num_filters]), name=name+'_b')
+    weights = tf.Variable(tf.truncated_normal(conv_filt_shape, stddev=0.03), name=name + '_W')
+    bias = tf.Variable(tf.truncated_normal([num_filters]), name=name + '_b')
 
     # setup the convolutional layer operation
     out_layer = tf.nn.conv2d(input_data, weights, [1, 1, 1, 1], padding='SAME')
@@ -53,7 +53,8 @@ def create_new_conv_layer(input_data, num_input_channels, num_filters, filter_sh
 
 
 def run_cnn():
-    mnist = input_data.read_data_sets("./MNIST_data", one_hot=True, source_url='http://storage.googleapis.com/cvdf-datasets/mnist/')
+    mnist = input_data.read_data_sets("./MNIST_data", one_hot=True,
+                                      source_url='http://storage.googleapis.com/cvdf-datasets/mnist/')
 
     learning_rate = 0.0001
     epochs = 20
@@ -68,23 +69,23 @@ def run_cnn():
     layer_1 = create_new_conv_layer(x_shaped, 1, 32, [5, 5], [2, 2], name="conv_layer_1")  # output: 14*14*32
     layer_2 = create_new_conv_layer(layer_1, 32, 64, [5, 5], [2, 2], name="conv_layer_2")  # output: 7*7*64
 
-    flattened = tf.reshape(layer_2, [-1, 7*7*64])
+    flattened = tf.reshape(layer_2, [-1, 7 * 7 * 64])
 
-    dense_layer_1 = common.add_layer(flattened, flattened.shape[1].value, 1000,
-                                     activation_function=tf.nn.relu, layer_name="dense_layer_1")
-    dense_layer_2 = common.add_layer(dense_layer_1, 1000, 10,
-                                     activation_function=tf.nn.softmax, layer_name="dense_layer_2")
+    # dense_layer_1 = common.add_layer(flattened, flattened.shape[1].value, 1000,
+    #                                  activation_function=tf.nn.relu, layer_name="dense_layer_1")
+    # dense_layer_2 = common.add_layer(dense_layer_1, 1000, 10,
+    #                                  activation_function=tf.nn.softmax, layer_name="dense_layer_2")
 
-    # wd1 = tf.Variable(tf.truncated_normal([7 * 7 * 64, 1000], stddev=0.03), name='wd1')
-    # bd1 = tf.Variable(tf.truncated_normal([1000], stddev=0.01), name='bd1')
-    # dense_layer1 = tf.matmul(flattened, wd1) + bd1
-    # dense_layer1 = tf.nn.relu(dense_layer1)
-    #
-    # # another layer with softmax activations
-    # wd2 = tf.Variable(tf.truncated_normal([1000, 10], stddev=0.03), name='wd2')
-    # bd2 = tf.Variable(tf.truncated_normal([10], stddev=0.01), name='bd2')
-    # dense_layer2 = tf.matmul(dense_layer1, wd2) + bd2
-    # dense_layer_2 = tf.nn.softmax(dense_layer2)
+    wd1 = tf.Variable(tf.truncated_normal([7 * 7 * 64, 1000], stddev=0.03), name='wd1')
+    bd1 = tf.Variable(tf.truncated_normal([1000], stddev=0.01), name='bd1')
+    dense_layer1 = tf.matmul(flattened, wd1) + bd1
+    dense_layer1 = tf.nn.relu(dense_layer1)
+
+    # another layer with softmax activations
+    wd2 = tf.Variable(tf.truncated_normal([1000, 10], stddev=0.03), name='wd2')
+    bd2 = tf.Variable(tf.truncated_normal([10], stddev=0.01), name='bd2')
+    dense_layer2 = tf.matmul(dense_layer1, wd2) + bd2
+    dense_layer_2 = tf.nn.softmax(dense_layer2)
 
     cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=dense_layer_2, labels=y))
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
@@ -111,4 +112,3 @@ def run_cnn():
 
 if __name__ == "__main__":
     run_cnn()
-
