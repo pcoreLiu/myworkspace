@@ -57,7 +57,7 @@ def run_cnn():
                                       source_url='http://storage.googleapis.com/cvdf-datasets/mnist/')
 
     learning_rate = 0.0001
-    epochs = 30
+    epochs = 50
     batch_size = 100
 
     input_dim = 28 * 28
