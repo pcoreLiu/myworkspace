@@ -53,7 +53,7 @@ def create_new_conv_layer(input_data, num_input_channels, num_filters, filter_sh
 
 
 def run_cnn():
-    mnist = input_data.read_data_sets("MNIST_data", one_hot=True)
+    mnist = input_data.read_data_sets("./MNIST_data", one_hot=True, source_url='http://storage.googleapis.com/cvdf-datasets/mnist/')
 
     learning_rate = 0.0001
     epochs = 20
