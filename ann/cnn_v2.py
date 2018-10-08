@@ -57,7 +57,7 @@ def run_cnn():
                                       source_url='http://storage.googleapis.com/cvdf-datasets/mnist/')
 
     learning_rate = 0.0001
-    epochs = 20
+    epochs = 30
     batch_size = 100
 
     input_dim = 28 * 28
@@ -66,31 +66,22 @@ def run_cnn():
 
     x_shaped = tf.reshape(x, [-1, 28, 28, 1])
 
-    layer_1 = create_new_conv_layer(x_shaped, 1, 32, [5, 5], [2, 2], name="conv_layer_1")  # output: 14*14*32
-    layer_2 = create_new_conv_layer(layer_1, 32, 64, [5, 5], [2, 2], name="conv_layer_2")  # output: 7*7*64
+    layer_1 = create_conv_layer(x_shaped, 1, 32, [5, 5], [2, 2], name="conv_layer_1")  # output: 14*14*32
+    layer_2 = create_conv_layer(layer_1, 32, 64, [5, 5], [2, 2], name="conv_layer_2")  # output: 7*7*64
 
     flattened = tf.reshape(layer_2, [-1, 7 * 7 * 64])
 
-    # dense_layer_1 = common.add_layer(flattened, flattened.shape[1].value, 1000,
-    #                                  activation_function=tf.nn.relu, layer_name="dense_layer_1")
-    # dense_layer_2 = common.add_layer(dense_layer_1, 1000, 10,
-    #                                  activation_function=tf.nn.softmax, layer_name="dense_layer_2")
+    dense_layer_1 = common.add_layer(flattened, flattened.shape[1].value, 1568,
+                                     activation_function=tf.nn.relu, layer_name="dense_layer_1")
+    dense_layer_2 = common.add_layer(dense_layer_1, 1568, 392,
+                                     activation_function=tf.nn.relu, layer_name="dense_layer_2")
+    prediction = common.add_layer(dense_layer_2, 392, 10,
+                                     activation_function=tf.nn.softmax, layer_name="prediction")
 
-    wd1 = tf.Variable(tf.truncated_normal([7 * 7 * 64, 1000], stddev=0.03), name='wd1')
-    bd1 = tf.Variable(tf.truncated_normal([1000], stddev=0.01), name='bd1')
-    dense_layer1 = tf.matmul(flattened, wd1) + bd1
-    dense_layer1 = tf.nn.relu(dense_layer1)
-
-    # another layer with softmax activations
-    wd2 = tf.Variable(tf.truncated_normal([1000, 10], stddev=0.03), name='wd2')
-    bd2 = tf.Variable(tf.truncated_normal([10], stddev=0.01), name='bd2')
-    dense_layer2 = tf.matmul(dense_layer1, wd2) + bd2
-    dense_layer_2 = tf.nn.softmax(dense_layer2)
-
-    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=dense_layer_2, labels=y))
+    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
-    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(dense_layer_2, 1))
+    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(prediction, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     with tf.Session() as sess:
