@@ -10,13 +10,13 @@ def create_conv_layer(input_data, num_input_channels,
     weights = tf.Variable(tf.truncated_normal(conv_filter_shape, stddev=0.03), name=name + "_W")
     bias = tf.Variable(tf.truncated_normal([num_filters]), name=name + "_b")
 
-    out_layer = tf.nn.conv2d(input_data, weights, [1, 1, 1, 1], padding='SAME')
+    out_layer = tf.nn.conv2d(input_data, weights, [1, 1, 1, 1], padding='VALID')
     out_layer = tf.nn.relu(tf.add(out_layer, bias))
 
     kernel_size = [1, pool_shape[0], pool_shape[1], 1]
 
     strides = [1, 2, 2, 1]
-    out_layer = tf.nn.max_pool(out_layer, ksize=kernel_size, strides=strides, padding='SAME')
+    out_layer = tf.nn.max_pool(out_layer, ksize=kernel_size, strides=strides, padding='VALID')
     return out_layer
 
 
@@ -66,17 +66,29 @@ def run_cnn():
 
     x_shaped = tf.reshape(x, [-1, 28, 28, 1])
 
-    layer_1 = create_conv_layer(x_shaped, 1, 32, [5, 5], [2, 2], name="conv_layer_1")  # output: 14*14*32
-    layer_2 = create_conv_layer(layer_1, 32, 64, [5, 5], [2, 2], name="conv_layer_2")  # output: 7*7*64
+    layer_1 = create_conv_layer(x_shaped, 1, 32, [5, 5], [2, 2], name="conv_layer_1")  # output: 12*12*32
+    layer_2 = create_conv_layer(layer_1, 32, 64, [5, 5], [2, 2], name="conv_layer_2")  # output: 4*4*64
 
-    flattened = tf.reshape(layer_2, [-1, 7 * 7 * 64])
+    flattened = tf.reshape(layer_2, [-1, 16 * 64])
 
-    dense_layer_1 = common.add_layer(flattened, flattened.shape[1].value, 1568,
+    dense_layer_1 = common.add_layer(flattened, flattened.shape[1].value, 512,
                                      activation_function=tf.nn.relu, layer_name="dense_layer_1")
-    dense_layer_2 = common.add_layer(dense_layer_1, 1568, 392,
+    dense_layer_2 = common.add_layer(dense_layer_1, 512, 64,
                                      activation_function=tf.nn.relu, layer_name="dense_layer_2")
-    prediction = common.add_layer(dense_layer_2, 392, 10,
-                                     activation_function=tf.nn.softmax, layer_name="prediction")
+    prediction = common.add_layer(dense_layer_2, 64, 10,
+                                  activation_function=tf.nn.softmax, layer_name="prediction")
+
+    # layer_1 = create_conv_layer(x_shaped, 1, 32, [5, 5], [2, 2], name="conv_layer_1")  # output: 14*14*32
+    # layer_2 = create_conv_layer(layer_1, 32, 64, [5, 5], [2, 2], name="conv_layer_2")  # output: 7*7*64
+
+    # flattened = tf.reshape(layer_2, [-1, 16 * 64])
+
+    # dense_layer_1 = common.add_layer(flattened, flattened.shape[1].value, 1568,
+    #                                  activation_function=tf.nn.relu, layer_name="dense_layer_1")
+    # dense_layer_2 = common.add_layer(dense_layer_1, 1568, 392,
+    #                                  activation_function=tf.nn.relu, layer_name="dense_layer_2")
+    # prediction = common.add_layer(dense_layer_2, 392, 10,
+    #                                  activation_function=tf.nn.softmax, layer_name="prediction")
 
     cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
