@@ -27,3 +27,22 @@ def compute_accuracy(test_data, test_data_label, sess, trained_model, model_data
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     # print("Accuracy: ", sess.run(accuracy))
     return sess.run(accuracy)
+
+
+def create_conv_layer(input_data, num_input_channels,
+                      num_filters, filter_shape, filter_strides=[1, 1], padding="SAME", name=""):
+    conv_filter_shape = [filter_shape[0], filter_shape[1], num_input_channels, num_filters]
+    weights = tf.Variable(tf.truncated_normal(conv_filter_shape, stddev=0.03), name=name + "_W")
+    bias = tf.Variable(tf.truncated_normal([num_filters]), name=name + "_b")
+
+    out_layer = tf.nn.conv2d(input_data, weights, [1, filter_strides[0], filter_strides[1], 1], padding=padding)
+    conv_layer = tf.nn.relu(tf.add(out_layer, bias))
+    return conv_layer
+
+
+def create_max_pool(conv_layer, pool_shape, pool_strides=[2, 2], padding="SAME", pool_name=""):
+    kernel_size = [1, pool_shape[0], pool_shape[1], 1]
+    strides = [1, pool_strides[0], pool_strides[1], 1]
+    out_layer = tf.nn.max_pool(conv_layer, ksize=kernel_size, strides=strides, padding=padding,
+                               name=pool_name + "maxPool")
+    return out_layer

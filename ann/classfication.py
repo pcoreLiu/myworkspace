@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from lib import common
+from lib import nn_build_helper
 
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -12,10 +12,10 @@ input_dim = 28 * 28
 xs = tf.placeholder(tf.float32, [None, input_dim])
 ys = tf.placeholder(tf.float32, [None, 10])
 
-hidden_layer1 = common.add_layer(xs, input_dim, 300, activation_function=tf.nn.relu, layer_name="hidden_layer_1")
+hidden_layer1 = nn_build_helper.add_layer(xs, input_dim, 300, activation_function=tf.nn.relu, layer_name="hidden_layer_1")
 # hidden_layer2 = common.add_layer(hidden_layer1, 300, 800, activation_function=tf.nn.relu, layer_name="hidden_layer_2")
 # hidden_layer3 = common.add_layer(hidden_layer2, 800, 2048, activation_function=tf.nn.relu, layer_name="hidden_layer_3")
-prediction = common.add_layer(hidden_layer1, 300, 10, activation_function=tf.nn.softmax, layer_name="prediction")
+prediction = nn_build_helper.add_layer(hidden_layer1, 300, 10, activation_function=tf.nn.softmax, layer_name="prediction")
 # loss = tf.reduce_mean(-tf.reduce_sum(ys * tf.log(prediction), reduction_indices=[1]))
 
 
@@ -39,4 +39,4 @@ with tf.Session() as sess:
         batch_xs, batch_ys = mnist.train.next_batch(100)
         sess.run(train, feed_dict={xs: batch_xs, ys: batch_ys})
         if step % 50 == 0:
-            print(common.compute_accuracy(mnist.test.images, mnist.test.labels, sess, prediction, xs))
+            print(nn_build_helper.compute_accuracy(mnist.test.images, mnist.test.labels, sess, prediction, xs))
